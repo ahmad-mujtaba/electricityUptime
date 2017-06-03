@@ -1,0 +1,130 @@
+* {
+    margin:0;
+    padding:0;
+}
+
+body {
+    font-size:16px;
+    font-family: "Roboto","Helvetica Nue","Arial",sans-serif;
+    background:#c2cacf;
+    transition:all 1.2s;
+}
+
+body.powerOn {
+    background: #c2cacf radial-gradient(ellipse at top center, #f1f4f5 0%, #c2cacf 75%) no-repeat;
+}
+
+#wrapper {
+    width:1200px;
+    margin:0px auto;
+}
+
+#tubeLightWrapper {
+    width: 500px;
+    margin:0 auto;
+    margin-top:24px;
+    height:14px;
+    box-shadow: 0px 0px 7px 1px rgba(0,0,0,0.20);
+    z-index:0;
+    position:relative;
+}
+
+.powerOn #tubeLightWrapper {
+    box-shadow: none;
+}
+
+#tubeLightWrapper #leftFixing, #tubeLightWrapper #rightFixing {
+    display: inline-block;
+    background:#ccc;
+    height:14px;
+    width:8px;
+    display: inline-block;
+    background: linear-gradient(to bottom, rgba(204,204,204,1) 0%, rgba(238,238,238,1) 49%, rgba(204,204,204,1) 100%);    
+    
+    z-index:2;
+    position:relative;
+}
+
+#tubeLightWrapper #rightFixing { border-radius: 0 3px 3px 0; border-left:1px solid  rgba(204,204,204,1); }
+#tubeLightWrapper #leftFixing { border-radius: 3px 0 0 3px;  border-right:1px solid  rgba(204,204,204,1);}
+
+#tubeLightWrapper #tubeLight {
+    display: inline-block;
+    background:#fcfcfc;
+    background: linear-gradient(to bottom, rgb(238, 238, 238) 0%, rgb(253, 253, 253) 49%, rgb(245, 245, 245) 100%);
+    height:12px;
+    border:1px solid #eee;
+    border-width: 1px 0;
+    width:482px;
+    display: inline-block;
+    transition: all 1.2s;
+    
+    z-index:1;
+    position:relative;
+}
+
+body.powerOn #tubeLightWrapper #tubeLight {
+    background:#fff;
+    box-shadow: 0px 0px 25px 9px #fff;
+}
+
+
+h1 {    
+    color:#113;
+    margin: 16px 0;
+    text-align:center;
+    font-size:16px;
+    color:rgba(0,0,0,0.7);
+}
+
+#dashboard>div{
+    display: inline-block;
+    width:24%;
+    box-sizing: border-box;
+    margin:2em 0;
+    padding:0 0.5em;
+}
+
+#powerStatus {
+      
+}
+
+#powerStatus em{
+    font-size:0.9em;    
+}
+
+#powerStatus strong {
+    font-size: 1.2em;
+    color:#c00;
+}
+
+.powerOn #powerStatus strong {    
+    color:#00BF8C;
+}
+
+#wait {
+    clear: both;
+    margin-top:16px;
+    font-style: italic;
+    text-align: center;
+    font-weight: bold;
+}
+
+#result table { border:1px solid #104D93; width:1200px; background:#fff;}
+
+#result table thead tr th {border-bottom:1px solid #104D93;border-right:1px solid #104D93; padding:0.5em 0.8em; font-size:14px;color:#104D93}
+#result table thead tr:last-child th,#result table thead tr:first-child th:first-child {border-bottom:2px solid #104D93;}
+
+
+#result table tr td {border-bottom:1px solid #90C6DD;border-right:1px solid #90C6DD;padding:0.4em; font-family:"Lucida Console","Courier New",monospace}
+#result table tr td[rowspan] {text-align: center}
+
+//#result table tr td:nth-child(1),#result table tr td:nth-child(1) {font-family: inherit;}
+
+#result {
+    display: none;
+}
+
+#rawData {
+    display:none;
+}
