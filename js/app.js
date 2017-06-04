@@ -1,18 +1,36 @@
 $(document).ready(function(){
         
     IS_LIVE = true;
-    $.ajax("getData.php", {
+    currentOutage = 0;
+    var errorCallback = function(a, b, c) {
+        console.log("Ajax error : "+a+" / "+b+" / "+c);
+        IS_LIVE = false;        
+        getDataCallback(CACHED_DATA);
+        $("#errorMsg").html("An error occurred. Using cached data").slideDown(600);
+    };
+    $.ajax("ge9tData.php", {
         type            : "GET",
-        success         : getDataCallback,        
-        error           : function(a, b, c) {
-            console.log("Ajax error : "+a+" / "+b+" / "+c);
-            IS_LIVE = false;        
-            getDataCallback(DUMMYDATA);
-        },
+        success         : function(data){
+            if(data.indexOf("OK") > -1) {
+                getDataCallback(data);
+            } else {
+                errorCallback();
+            }            
+        },        
+        error           : errorCallback,
         dataType        : "html"
         
     });
     //$.get("getData.php", getDataCallback, "html");
+    
+    $("#controls input[type='checkbox']").on("change", function(){
+        var colName = $(this).attr("data-column");
+        if($(this).is(":checked")){
+            $("#result tr > ."+colName).show();
+        } else {
+            $("#result tr > ."+colName).hide();
+        }
+    });
     
 });
 
@@ -35,21 +53,21 @@ function checkPowerStatus() {
     console.log(lastReportedStr);
     var lastReported = moment(lastReportedStr, TIME_FORMAT);
     var diff = thisMoment.diff(lastReported);
-    var status = "<strong>Power OFF</strong><br> <em>since "+niceDuration(diff, false)+"</em>";
+    var status = "<strong title='OFF'><i class='fa fa-times'></i> OFF</strong><br> <em><i class='fa fa-clock-o'></i> "+niceDuration(diff, false)+"</i></em>";
     if(diff <= THRESHOLD_IN_MS) {
-        status = "<strong>Power ON</strong>";
+        status = "<strong title='ON'><i class='fa fa-check'></i> ON</strong>";
         $("body").addClass("powerOn");
+    } else {
+        $("body").addClass("powerOff");
+        currentOutage = diff;
     }
     $("#powerStatus").html(status);
 }
 
 function processData() {
     var sessions = [];          
-    var outages = [];
     var MILLIS_IN_A_DAY = 8.64e+7;
-    var MILLIS_IN_A_WEEK = MILLIS_IN_A_DAY * 7;
-    
-    
+        
     var lastRowNum = $("#rawData table tbody tr:last-child").index();
     for(var i=lastRowNum; i>1; --i) {
         $("#rawData table tbody tr:nth-child("+i+")").each(function(){
@@ -60,81 +78,134 @@ function processData() {
     }        
     
     var html ="";
-    for(var i = 1; i < sessions.length-1; i+=2) {
+    var maxUptimeMs = 0;
+    var outageToday = 0;
+    var maxUptimeStr = "";
+    for(i = 0; i < sessions.length;) {
+        
+        var startIndex = i-1;
+        var endIndex = i;
+        if(i=== 0 || i === sessions.length -2) {
+            startIndex = i;
+            endIndex = i+1;
+        }
+        
+        var tmpMs = sessions[endIndex].diff(sessions[startIndex]);
+        if(tmpMs > maxUptimeMs) {
+            maxUptimeMs = tmpMs;
+            maxUptimeStr = niceDuration(maxUptimeMs)+" <br><span>"+sessions[startIndex].format("D/MM/YY hh:mm A")+" to "+sessions[endIndex].format("D/MM/YY hh:mm A")+"</span> ";
+        }
         
         
-        if (sessions[i+1].format("YYYY-DDDD") !== sessions[i].format("YYYY-DDDD")) {
-            var d  = sessions[i+1].diff(sessions[i], 'days') + 1;
-            
-            var  t = moment(sessions[i]);
-            var startMoment = moment(sessions[i]);
-            var endMoment = moment(sessions[i+1]);
-            for(var j=0;j <=d;++j) {
+        if(i > 0 && i < sessions.length-1) {
+            if (sessions[i+1].format("YYYY-DDDD") !== sessions[i].format("YYYY-DDDD")) {
+                var d  = sessions[i+1].diff(sessions[i], 'days') + 1;
                 
-                var outageStart = startMoment.format("hh:mm:ss A");
-                var outageEnd = endMoment.format("hh:mm:ss A");                
-                
-                console.log(t.format("YYYY-DDDD")+" === "+endMoment.format("YYYY-DDDD"));
-                if (t.format("YYYY-DDDD") === startMoment.format("YYYY-DDDD")) {
-                    t = t.endOf('day');
-                    var ms = t.diff(startMoment);
-                    outageEnd = "--";
-                } else if (t.format("YYYY-DDDD") === endMoment.format("YYYY-DDDD")) {
-                    var ms = endMoment.diff(t.startOf('day'));
-                    outageStart = "--";
-                } else {
-                    outageStart = "--";
-                    outageEnd = "--";
-                    var ms = MILLIS_IN_A_DAY;
+                var  t = moment(sessions[i]);
+                var startMoment = moment(sessions[i]);
+                var endMoment = moment(sessions[i+1]);
+                for(var j=0;j <=d;++j) {
+                    
+                    var outageStart = startMoment.format("hh:mm:ss A");
+                    var outageEnd = endMoment.format("hh:mm:ss A");                
+                    
+                    console.log(t.format("YYYY-DDDD")+" === "+endMoment.format("YYYY-DDDD"));
+                    if (t.format("YYYY-DDDD") === startMoment.format("YYYY-DDDD")) {
+                        t = t.endOf('day');
+                        var ms = t.diff(startMoment);
+                        outageEnd = "--";
+                    } else if (t.format("YYYY-DDDD") === endMoment.format("YYYY-DDDD")) {
+                        var ms = endMoment.diff(t.startOf('day'));
+                        outageStart = "--";
+                    } else {
+                        outageStart = "--";
+                        outageEnd = "--";
+                        var ms = MILLIS_IN_A_DAY;
+                    }
+                    
+                    html+="<tr data-day='"+t.format("YYYY-DDDD")+"' data-week='"+t.format("YYYY-WW")+"' data-month='"+t.format("YYYY-MM")+"' data-durationMs='"+ms+"'>";
+                    html+="<td>"+t.format("ddd")+"</td>";
+                    html+="<td>"+t.format("DD/MM/YYYY")+"</td>";        
+                    html+="<td>"+outageStart+"</td>";
+                    html+="<td>"+outageEnd+"</td>";
+                    html+="<td>"+niceDuration(ms)+"</td>";
+                    html+="</tr>";
+                    
+                    t = t.add(1, "d");
                 }
                 
-                html+="<tr data-day='"+t.format("YYYY-DDDD")+"' data-week='"+t.format("YYYY-WW")+"' data-durationMs='"+ms+"'>";
-                html+="<td>"+t.format("ddd")+"</td>";
-                html+="<td>"+t.format("DD/MM/YYYY")+"</td>";        
-                html+="<td>"+outageStart+"</td>";
-                html+="<td>"+outageEnd+"</td>";
-                html+="<td>"+niceDuration(ms)+"</td>";
-                html+="</tr>";
+            } else {
                 
-                t = t.add(1, "d");
+                var ms = sessions[i+1].diff(sessions[i]);
+                html+="<tr data-day='"+sessions[i].format("YYYY-DDDD")+"' data-week='"+sessions[i].format("YYYY-WW")+"' data-month='"+sessions[i].format("YYYY-MM")+"' data-durationMs='"+ms+"'>";
+                html+="<td>"+sessions[i].format("ddd")+"</td>";
+                html+="<td>"+sessions[i].format("DD/MM/YYYY")+"</td>";        
+                html+="<td>"+sessions[i].format("hh:mm:ss A")+"</td>";
+                html+="<td>"+sessions[i+1].format("hh:mm:ss A")+"</td>";        
+                html+="<td>"+niceDuration(ms)+"</td>";
+                html+="</tr>";    
             }
-            
-        } else {
-            
-            var ms = sessions[i+1].diff(sessions[i]);
-            html+="<tr data-day='"+sessions[i].format("YYYY-DDDD")+"' data-week='"+sessions[i].format("YYYY-WW")+"' data-durationMs='"+ms+"'>";
-            html+="<td>"+sessions[i].format("ddd")+"</td>";
-            html+="<td>"+sessions[i].format("DD/MM/YYYY")+"</td>";        
-            html+="<td>"+sessions[i].format("hh:mm:ss A")+"</td>";
-            html+="<td>"+sessions[i+1].format("hh:mm:ss A")+"</td>";        
-            html+="<td>"+niceDuration(ms)+"</td>";
-            html+="</tr>";    
+            ++i;        
         }
+        ++i;
     }
     
     $("#result table tbody").html(html);
     
     
+    // inserting rows with 100% uptime :
+    //
+    $("#result table tbody tr").each(function(){
+        var thisRowDay = parseInt(moment($(this).attr("data-day"), "YYYY-DDD").format("DDD"));
+        var nextRowDay = parseInt(moment($(this).next("tr").attr("data-day"), "YYYY-DDD").format("DDD"));
+        if(nextRowDay - thisRowDay > 1) {
+            var t = moment($(this).attr("data-day"), "YYYY-DDD");
+            var html = "";
+            for(var i=0; i < (nextRowDay - thisRowDay -1); ++i) {
+                t = t.add(1, "d");
+                
+                html+="<tr class='uptime100' data-day='"+t.format("YYYY-DDDD")+"' data-week='"+t.format("YYYY-WW")+"' data-month='"+t.format("YYYY-MM")+"' data-durationMs='0'>";
+                html+="<td>"+t.format("ddd")+"</td>";
+                html+="<td>"+t.format("DD/MM/YYYY")+"</td>";        
+                html+="<td>--</td>";
+                html+="<td>--</td>";        
+                html+="<td>"+niceDuration(0)+"</td>";
+                html+="</tr>"; 
+            }
+            $(this).after(html);
+        }
+        
+    });
+    
     
     var meanOutage = null;
+    var totalOutage = 0;
     var meanUptime = null;
     var visitedDays = [];
     var visitedWeeks = [];
+    var visitedMonths = [];
     $("#result table tbody tr").each(function(){
     
         var $thisTr = $(this);
         var day = $(this).attr("data-day");
         var week = $(this).attr("data-week");
+        var month = $(this).attr("data-month");
+        var today = moment().format("YYYY-DDD");
         
+        // sigma day
         if(visitedDays.indexOf(day) === -1) {
             var outageSum = 0;
             var numRecords = 0;
             $("#result table tbody tr[data-day='"+day+"']").each(function(){
-                outageSum += parseInt($(this).attr("data-durationMs"));
+                var tmpOutage = parseInt($(this).attr("data-durationMs"));
+                outageSum += tmpOutage;
                 ++numRecords;
                 
                 if(!$(this).is($thisTr)) {
                     $(this).find("td:nth-child(1), td:nth-child(2)").remove();
+                }
+                if(day === today) {
+                    outageToday+=tmpOutage;
                 }
             
             });
@@ -144,19 +215,21 @@ function processData() {
             } else {
                 meanOutage = (meanOutage + outageSum) / 2;
             }
+            totalOutage += outageSum;
             if (meanUptime === null) {
                 meanUptime = dayUptime;
             } else {
                 meanUptime = (meanUptime + dayUptime) / 2;
             }
-            $(this).append("<td rowspan="+numRecords+">"+niceDuration(outageSum)+"</td>");
-            $(this).append("<td rowspan="+numRecords+">"+dayUptime.toFixed(1)+"%</td>");
+            $(this).append("<td class='sigma-day' rowspan="+numRecords+">"+niceDuration(outageSum)+" <br> <span class='sum-uptime sum-uptime-day' title='Uptime'>"+dayUptime.toFixed(1)+"%</span></td>");
+            //$(this).append("<td rowspan="+numRecords+">"+dayUptime.toFixed(1)+"%</td>");
             
             $(this).find("td:nth-child(1), td:nth-child(2)").attr("rowspan", numRecords);
             
             visitedDays.push(day);
         }
-                
+             
+        // sigma week   
         if(visitedWeeks.indexOf(week) === -1) {
             var outageSumWeek = 0;
             var numRecordsWeek = 0;
@@ -164,18 +237,40 @@ function processData() {
                 outageSumWeek += parseInt($(this).attr("data-durationMs"));
                 ++numRecordsWeek;
             });
-            $(this).append("<td rowspan="+numRecordsWeek+">"+niceDuration(outageSumWeek)+"</td>");
-            $(this).append("<td rowspan="+numRecordsWeek+">"+(100-((outageSumWeek/MILLIS_IN_A_WEEK)*100)).toFixed(1)+"%</td>");                    
+            $(this).append("<td class='sigma-week' rowspan="+numRecordsWeek+">"+niceDuration(outageSumWeek)+"</td>");            
             visitedWeeks.push(week);
         }
         
+        // Sigma month
+        if(visitedMonths.indexOf(month) === -1) {
+            var outageSumMonth = 0;
+            var numRecordsMonth = 0;
+            $("#result table tbody tr[data-month='"+month+"']").each(function(){
+                outageSumMonth += parseInt($(this).attr("data-durationMs"));
+                ++numRecordsMonth;
+            });
+            var monthName = moment(month, "YYYY-MM").format("MMM YY");
+            
+            var tmp = "<td class='sigma-month' rowspan="+numRecordsMonth+"><span class='month-indicator'>"+monthName+"</span><br>"+niceDuration(outageSumMonth)+"</td>";
+            $(this).append(tmp);            
+            visitedMonths.push(month);
+        }
         
     });
     
+    
     $("#wait").hide();
     $("#result").show();
-    $("#avg_outage").html("Mean Outage<br> <strong>"+niceDuration(meanOutage)+"</strong>");
-    $("#avg_uptime").html("Mean Uptime<br> <strong>"+meanUptime.toFixed(1)+"%</strong>");
+    $("#date span.value").html("26/5/17 &mdash; "+moment().format("D/M/YY"));
+    $("#total_outage span.value").html(niceDuration(totalOutage));
+    $("#avg_outage span.value").html(niceDuration(meanOutage));
+    $("#avg_uptime span.value").html(meanUptime.toFixed(1)+"%");
+    $("#max_uptime span.value").html(maxUptimeStr);
+    $("#today_outage span.value").html(niceDuration(outageToday+currentOutage));
+    
+    $("#request_time span.value").html($("#rawData #serverTime").html());
+    
+    $("#rawData").empty();
 }
 
 function niceDuration(ms, includeSecond) {
@@ -196,5 +291,5 @@ function niceDuration(ms, includeSecond) {
     if (includeSecond !== undefined && includeSecond === true){
         tmp+=seconds+"s";
     }        
-    return tmp;
+    return ms === 0 ? "0m":tmp;
 }

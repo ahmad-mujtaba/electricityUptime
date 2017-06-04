@@ -133,8 +133,13 @@ header("Access-Control-Allow-Origin: *");
     $data["timestamp"] = time();
     $data["timeTaken"] = microtime(true) - $startTime;
     
+    $output = "OK".$data["table"]."<div id=\"serverTime\">".round($data["timeTaken"], 2)."s</div>";
 
-    echo $data["table"];
+    $fp = fopen("js/cached.js", "w+");
+    fwrite($fp, "CACHED_DATA='".$output."';");
+    fclose($fp);
+    
+    echo $output;
 
 
 ?>

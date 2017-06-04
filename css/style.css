@@ -14,6 +14,15 @@ body.powerOn {
     background: #c2cacf radial-gradient(ellipse at top center, #f1f4f5 0%, #c2cacf 75%) no-repeat;
 }
 
+#errorMsg {
+    font-size:12px;
+    padding:0.66em;
+    background:#c00;
+    color:#fff;
+    font-weight:bold;
+    margin-bottom:1em;
+    display: none;
+}
 #wrapper {
     width:1200px;
     margin:0px auto;
@@ -24,11 +33,15 @@ body.powerOn {
     margin:0 auto;
     margin-top:24px;
     height:14px;
-    box-shadow: 0px 0px 7px 1px rgba(0,0,0,0.20);
+    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.20);
     z-index:0;
     position:relative;
 }
 
+#tubeLightWrapper > * {
+    position: relative;
+    top:-1px;
+}
 .powerOn #tubeLightWrapper {
     box-shadow: none;
 }
@@ -39,10 +52,8 @@ body.powerOn {
     height:14px;
     width:8px;
     display: inline-block;
-    background: linear-gradient(to bottom, rgba(204,204,204,1) 0%, rgba(238,238,238,1) 49%, rgba(204,204,204,1) 100%);    
-    
+    background: linear-gradient(to bottom, rgba(204,204,204,1) 0%, rgba(238,238,238,1) 49%, rgba(204,204,204,1) 100%);        
     z-index:2;
-    position:relative;
 }
 
 #tubeLightWrapper #rightFixing { border-radius: 0 3px 3px 0; border-left:1px solid  rgba(204,204,204,1); }
@@ -78,15 +89,28 @@ h1 {
 }
 
 #dashboard>div{
-    display: inline-block;
-    width:24%;
+    float:left;
+    width:20%;
     box-sizing: border-box;
     margin:2em 0;
     padding:0 0.5em;
 }
 
+#dashboard>div span.key {
+    display: block;
+    font-size:0.8em;
+    text-transform: uppercase;
+    color:rgba(0,0,0,0.8);
+}
+#dashboard>div span.value {
+    display: block;
+    font-size:1.1em;
+    font-weight: bold;    
+}
+
 #powerStatus {
-      
+    text-align:center;
+    margin-top:2em;
 }
 
 #powerStatus em{
@@ -95,12 +119,29 @@ h1 {
 
 #powerStatus strong {
     font-size: 1.2em;
-    color:#c00;
+    display: inline-block;
+    padding: 0.4em;
+    color:#fff;
+    border-radius:3px;
+    min-width:55px;
+    text-align: center;
+    text-shadow: 0px 1px 3px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-.powerOn #powerStatus strong {    
-    color:#00BF8C;
+.powerOn #powerStatus strong {
+    box-shadow: inset 0px 0px 5px 0px rgba(0,0,0,0.4);
+    background:#5CE004;
+    
 }
+
+.powerOff #powerStatus strong {
+    box-shadow: inset 0px 0px 9px 0px rgba(0,0,0,0.5);
+    background:#999;
+    color:#eee;
+    
+}
+
 
 #wait {
     clear: both;
@@ -110,16 +151,59 @@ h1 {
     font-weight: bold;
 }
 
-#result table { border:1px solid #104D93; width:1200px; background:#fff;}
+#controls {
+    margin: 1em 0;
+    text-align: right;
+}
 
-#result table thead tr th {border-bottom:1px solid #104D93;border-right:1px solid #104D93; padding:0.5em 0.8em; font-size:14px;color:#104D93}
+#controls input[type=checkbox] {
+    display: none;
+}
+#controls label {
+    display: inline-block;
+    padding: 0.33em 0.67em;
+    margin:0 0.15em;
+    color:#555;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+#controls input:checked + label {
+    background:#06f;
+    color:#fff;
+    border-radius: 6px;
+}
+
+#result table { width:1200px; background:#fff;}
+
+#result table thead tr th {padding:0.5em 0.8em; font-size:14px;color:#104D93; border-right:1px solid #D2D9DB}
 #result table thead tr:last-child th,#result table thead tr:first-child th:first-child {border-bottom:2px solid #104D93;}
 
+#result table thead tr th span {
+    display: inline-block;
+    font-size:11px;
+    text-transform: uppercase;
+    background:#ddd;
+    color:#777;
+    padding:3px;
+    border-radius: 3px;
+}
 
-#result table tr td {border-bottom:1px solid #90C6DD;border-right:1px solid #90C6DD;padding:0.4em; font-family:"Lucida Console","Courier New",monospace}
+#result table tr td {border-bottom:1px solid #BCD8E2;padding:0.4em; border-right:1px solid #BCD8E2;padding:0.4em;font-family:"Lucida Console","Courier New",monospace}
+#result table tr td:nth-child(8){border-right: none;} 
 #result table tr td[rowspan] {text-align: center}
 
-//#result table tr td:nth-child(1),#result table tr td:nth-child(1) {font-family: inherit;}
+.sigma-week, .sigma-month {display:none;}
+
+span.sum-uptime {
+    font-size:0.9em;
+    margin-top:3px;
+    display: inline-block;
+    background:#eee;
+    border-radius:6px;
+    padding:3px;
+    font-family: 'Roboto',sans-serif;
+}
 
 #result {
     display: none;
@@ -128,3 +212,5 @@ h1 {
 #rawData {
     display:none;
 }
+
+.clear {clear: both;}

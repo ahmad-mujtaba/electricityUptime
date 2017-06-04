@@ -4,66 +4,76 @@
         <head>
             <title>MSEDCL Uptime Report</title>
             
+			<meta charset='utf-8'>
+            <meta http-equiv='x-ua-compatible' content='ie=edge'>
+            <meta name='viewport' content='width=device-width, initial-scale=1'>
+			
+			<script src="https://use.fontawesome.com/df62a55d36.js"></script>
             <script src="js/jquery-3.2.1.min.js"></script>
             <script src="js/moment.js"></script>
-	    <script src="js/dummydata.js"></script>
+			<script src="js/cached.js"></script>
             <script src="js/app.js"></script>
-            <link href="css/style.css" rel="stylesheet" />
+            <link href="css/style.css" rel="stylesheet">			
         </head>
         <body>
+			<div id="errorMsg"></div>
             
             <div id="wrapper">				
 				
 				
-		<div id="tubeLightWrapper"><div id="leftFixing"></div><div id="tubeLight"></div><div id="rightFixing"></div></div>
+		
+		
+				<div id="tubeLightWrapper"><div id="leftFixing"></div><div id="tubeLight"></div><div id="rightFixing"></div></div>
 
-		<div id="dashboard">
-		    <div id="powerStatus">Processing...</div>
-		    <div id="avg_outage">
-			Mean outage <br>
-			<strong>1h 34m</strong>
-		    </div>
-		    <div id="avg_uptime">
-			Mean uptime <br>
-			<strong>91.3%</strong>
-		    </div>
-		    
-		    <div>
-			<button>Refresh</button>
-		    </div>
-		</div>
+				<div id="wait">
+					Please wait...
+				</div>
+		
+				<div id="content">
+					<div id="powerStatus"></div>
+					
+					<div id="dashboard">
+						<div id="date"><span class='key'>Date range</span> <span class='value'></span></div>
+						<div id="today_outage"><span class='key'>Outage Today</span> <span class='value'></span></div>
+						<div id="total_outage"><span class='key'>Total Outage</span> <span class='value'></span></div>
+						<div id="avg_outage"><span class='key'>Mean Outage</span> <span class='value'></span></div>
+						<div id="avg_uptime"><span class='key'>Mean Uptime</span> <span class='value'></span></div>
+						<div id="max_uptime"><span class='key'>Longest Uptime</span> <span class='value'></span></div>
+						<div id="request_time"><span class='key'>Request Time</span> <span class='value'></span></div>
+					</div>
+					
+					<div class="clear"></div>
+					
+					<div id="controls">
+						Show :
+						<input type="checkbox" id="sigmaDay" checked="checked" data-column="sigma-day"> <label for="sigmaDay">∑ Day</label>
+						<input type="checkbox" id="sigmaWeek" data-column="sigma-week"> <label for="sigmaWeek">∑ Week</label>
+						<input type="checkbox" id="sigmaMonth" data-column="sigma-month"> <label for="sigmaMonth">∑ Month</label>
+					</div>
 				
-		<div id="wait">
-			Please wait...
-		</div>
-                <div id="result">
-                    
-                    <table cellpadding="0" cellspacing="0">
-                        
-                        <thead>
-                            <tr>                            
-                                <th rowspan="2" colspan="2">Date</th>                            
-                                <th colspan="3">Outages</th>
-                                <th colspan="2">Day</th>
-                                <th colspan="2">Week</th>
-                            </tr>
-                            <tr>
-                                
-                                <th>Start</th>
-                                <th>End</th>
-                                <th>Duration</th>
-                                <th>Cumulative Outage</th>
-                                <th>Uptime</th>
-                                <th>Cumulative Outage</th>
-                                <th>Uptime</th>
-                            </tr>
-                        </thead>
-                        <tbody>                            
-                        </tbody>
-                    </table>
-                    
-                </div>
+		
+					<div id="result">
+						
+						<table cellpadding="0" cellspacing="0">
+							
+							<thead>
+								<tr>                            
+									<th colspan="2">Date</th>                            
+									<th>Outage<br>Start</th>
+									<th>Outage<br>End</th>
+									<th>Outage<br>Duration</th>
+									<th class='sigma-day'><span>∑ Day</span><br>Outage</th>
+									<th class='sigma-week'><span>∑ Week</span><br>Outage</th>
+									<th class='sigma-month'><span>∑ Month</span><br>Outage</th>
+								</tr>
+							</thead>
+							<tbody>                            
+							</tbody>
+						</table>
+						
+					</div>
             
+				</div>
             </div>
             
             <div id="rawData"></div>
