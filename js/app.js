@@ -141,7 +141,7 @@ function processData() {
                     
                     html+="<tr data-day='"+t.format("YYYY-DDDD")+"' data-week='"+t.format("YYYY-WW")+"' data-month='"+t.format("YYYY-MM")+"' data-durationMs='"+ms+"'>";
                     html+="<td>"+t.format("ddd")+"</td>";
-                    html+="<td>"+t.format("DD/MM/YYYY")+"</td>";        
+                    html+="<td>"+t.format("DD/MM/YY")+"</td>";        
                     html+="<td>"+outageStart+"</td>";
                     html+="<td>"+outageEnd+"</td>";
                     html+="<td>"+niceDuration(ms)+"</td>";
@@ -155,7 +155,7 @@ function processData() {
                 var ms = sessions[i+1].diff(sessions[i]);
                 html+="<tr data-day='"+sessions[i].format("YYYY-DDDD")+"' data-week='"+sessions[i].format("YYYY-WW")+"' data-month='"+sessions[i].format("YYYY-MM")+"' data-durationMs='"+ms+"'>";
                 html+="<td>"+sessions[i].format("ddd")+"</td>";
-                html+="<td>"+sessions[i].format("DD/MM/YYYY")+"</td>";        
+                html+="<td>"+sessions[i].format("DD/MM/YY")+"</td>";        
                 html+="<td>"+sessions[i].format("hh:mm:ss A")+"</td>";
                 html+="<td>"+sessions[i+1].format("hh:mm:ss A")+"</td>";        
                 html+="<td>"+niceDuration(ms)+"</td>";
@@ -182,7 +182,7 @@ function processData() {
                 
                 html+="<tr class='uptime100' data-day='"+t.format("YYYY-DDDD")+"' data-week='"+t.format("YYYY-WW")+"' data-month='"+t.format("YYYY-MM")+"' data-durationMs='0'>";
                 html+="<td>"+t.format("ddd")+"</td>";
-                html+="<td>"+t.format("DD/MM/YYYY")+"</td>";        
+                html+="<td>"+t.format("DD/MM/YY")+"</td>";        
                 html+="<td>--</td>";
                 html+="<td>--</td>";        
                 html+="<td>"+niceDuration(0)+"</td>";
