@@ -1,27 +1,41 @@
 $(document).ready(function(){
-        
-    IS_LIVE = true;
-    currentOutage = 0;
-    var errorCallback = function(a, b, c) {
-        console.log("Ajax error : "+a+" / "+b+" / "+c);
-        IS_LIVE = false;        
-        getDataCallback(CACHED_DATA);
-        $("#errorMsg").html("An error occurred. Using cached data").slideDown(600);
+    var load = function(){    
+        IS_LIVE = true;
+        currentOutage = 0;
+        var errorCallback = function(a, b, c) {
+            console.log("Ajax error : "+a+" / "+b+" / "+c);
+            IS_LIVE = false;        
+            getDataCallback(CACHED_DATA);
+            $("#errorMsg").html("An error occurred. Using cached data").slideDown(600);
+        };
+        $.ajax("getData.php", {
+            type            : "GET",
+            beforeSend      : function(){
+                $("#content").hide();
+                $("#wait").show();
+                $("#wait .loaderWrapper").html("<div class='loader' style='width:0'>&nbsp;</div>");
+                setTimeout(function() {
+                    $("#wait .loader").css("width","100%");    
+                },0);
+                
+                
+            },
+            success         : function(data){
+                if(data.indexOf("OK") > -1) {
+                    getDataCallback(data);
+                } else {
+                    errorCallback();
+                }            
+            },        
+            error           : errorCallback,
+            dataType        : "html",
+            timeout         : 20000
+            
+        });
+        //$.get("getData.php", getDataCallback, "html");
     };
-    $.ajax("ge9tData.php", {
-        type            : "GET",
-        success         : function(data){
-            if(data.indexOf("OK") > -1) {
-                getDataCallback(data);
-            } else {
-                errorCallback();
-            }            
-        },        
-        error           : errorCallback,
-        dataType        : "html"
-        
-    });
-    //$.get("getData.php", getDataCallback, "html");
+    
+    load();
     
     $("#controls input[type='checkbox']").on("change", function(){
         var colName = $(this).attr("data-column");
@@ -31,6 +45,8 @@ $(document).ready(function(){
             $("#result tr > ."+colName).hide();
         }
     });
+    
+    $("#tubeLight").on("click", load);
     
 });
 
@@ -93,7 +109,7 @@ function processData() {
         var tmpMs = sessions[endIndex].diff(sessions[startIndex]);
         if(tmpMs > maxUptimeMs) {
             maxUptimeMs = tmpMs;
-            maxUptimeStr = niceDuration(maxUptimeMs)+" <br><span>"+sessions[startIndex].format("D/MM/YY hh:mm A")+" to "+sessions[endIndex].format("D/MM/YY hh:mm A")+"</span> ";
+            maxUptimeStr = niceDuration(maxUptimeMs)+" <br><span>"+sessions[startIndex].format("D/MM/YY hh:mm A")+" to <br>"+sessions[endIndex].format("D/MM/YY hh:mm A")+"</span> ";
         }
         
         
@@ -221,7 +237,7 @@ function processData() {
             } else {
                 meanUptime = (meanUptime + dayUptime) / 2;
             }
-            $(this).append("<td class='sigma-day' rowspan="+numRecords+">"+niceDuration(outageSum)+" <br> <span class='sum-uptime sum-uptime-day' title='Uptime'>"+dayUptime.toFixed(1)+"%</span></td>");
+            $(this).append("<td class='sigma-day' rowspan="+numRecords+">"+niceDuration(outageSum)+" <br> <span class='sum-uptime sum-uptime-day' title='Uptime'><i class='fa fa-bolt'></i> "+dayUptime.toFixed(0)+"%</span></td>");
             //$(this).append("<td rowspan="+numRecords+">"+dayUptime.toFixed(1)+"%</td>");
             
             $(this).find("td:nth-child(1), td:nth-child(2)").attr("rowspan", numRecords);
@@ -258,9 +274,7 @@ function processData() {
         
     });
     
-    
-    $("#wait").hide();
-    $("#result").show();
+        
     $("#date span.value").html("26/5/17 &mdash; "+moment().format("D/M/YY"));
     $("#total_outage span.value").html(niceDuration(totalOutage));
     $("#avg_outage span.value").html(niceDuration(meanOutage));
@@ -269,6 +283,9 @@ function processData() {
     $("#today_outage span.value").html(niceDuration(outageToday+currentOutage));
     
     $("#request_time span.value").html($("#rawData #serverTime").html());
+    
+    $("#wait").hide();
+    $("#content").show();
     
     $("#rawData").empty();
 }

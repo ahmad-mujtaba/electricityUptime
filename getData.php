@@ -6,6 +6,7 @@ include('inc/credentials.php');
 header("Access-Control-Allow-Origin: *");
 
 
+    //sleep(25);    
 
     date_default_timezone_set("Asia/Kolkata");
     
