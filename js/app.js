@@ -65,7 +65,7 @@ function getDataCallback(htmlData) {
 function checkPowerStatus() {
     var THRESHOLD_IN_MS = 90000;    // 1.5min
     var thisMoment = moment();
-    var lastReportedStr = $("#rawData table tbody tr:nth-child(2) td:nth-child(4)").text()+" "+$("#rawData table tbody tr:nth-child(2) td:nth-child(5)").text();
+    var lastReportedStr = $("#rawData table tbody tr:nth-child(2) td:nth-child(5)").text()+" "+$("#rawData table tbody tr:nth-child(2) td:nth-child(6)").text();
     console.log(lastReportedStr);
     var lastReported = moment(lastReportedStr, TIME_FORMAT);
     var diff = thisMoment.diff(lastReported);
@@ -88,8 +88,8 @@ function processData() {
     for(var i=lastRowNum; i>1; --i) {
         $("#rawData table tbody tr:nth-child("+i+")").each(function(){
             
-            sessions.push(moment($(this).find("td:nth-child(2)").text()+" "+$(this).find("td:nth-child(3)").text(), TIME_FORMAT));
-            sessions.push(moment($(this).find("td:nth-child(4)").text()+" "+$(this).find("td:nth-child(5)").text(), TIME_FORMAT));
+            sessions.push(moment($(this).find("td:nth-child(3)").text()+" "+$(this).find("td:nth-child(4)").text(), TIME_FORMAT));
+            sessions.push(moment($(this).find("td:nth-child(5)").text()+" "+$(this).find("td:nth-child(6)").text(), TIME_FORMAT));
         });
     }        
     
@@ -273,6 +273,7 @@ function processData() {
         }
         
     });
+    
     
         
     $("#date span.value").html("26/5/17 &mdash; "+moment().format("D/M/YY"));

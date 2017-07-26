@@ -26,9 +26,9 @@ header("Access-Control-Allow-Origin: *");
     $usageFormParams = array(
         
         'ctl00_ToolkitScriptManager1_HiddenField' => '', 
-        'ctl00$ContentPlaceHolder1$txtStDt' => '26/05/2017 06:06:06 PM', 
+        'ctl00$ContentPlaceHolder1$txtStDt' => '01/07/2017 12:00:00 AM', 
         'ctl00$ContentPlaceHolder1$ValidatorCalloutExtender1_ClientState' => '', 
-        'ctl00$ContentPlaceHolder1$txtEDt' => $currentDateTime, 
+        'ctl00$ContentPlaceHolder1$txtEDt' => /*'15/06/2017 12:00:00 AM',*/ $currentDateTime, 
         'ctl00$ContentPlaceHolder1$ValidatorCalloutExtender2_ClientState' => '', 
         'ctl00$ContentPlaceHolder1$btnSearch' => 'Search'                             
     );
@@ -141,6 +141,4 @@ header("Access-Control-Allow-Origin: *");
     fclose($fp);
     
     echo $output;
-
-
 ?>
